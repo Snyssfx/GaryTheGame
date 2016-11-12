@@ -11,7 +11,7 @@ public class Room12 : Room {
 		deleteProducts ("сыр", "шоколад", "рыба", "масло");
 		products.Add ("крупа", new Products (new GameObject ("Krupa"), 9000));
 		products.Add ("яблоки", new Products (new GameObject ("Apples"), 8500));
-		products ["молоко"].MyPrice = 7700;
+		products ["молоко"].Price = 7700;
 		products ["хлеб"].Price = 6000;
 	}
 

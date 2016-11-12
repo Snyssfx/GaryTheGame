@@ -6,8 +6,10 @@ using System.Collections.Generic;
 
 public class GameController : MonoBehaviour {
 
+	//how old our little hero
 	public int currentYear = 8;
 
+	//it's gun button
 	public Button finalButton;
 	public Text finalText;
 
@@ -44,12 +46,7 @@ public class GameController : MonoBehaviour {
 		backgroundMusic = GameObject.Find ("BackgroundMusic").GetComponent<AudioSource> ();
 		backgroundMusic.loop = true;
 		backgroundMusic.clip = Resources.Load<AudioClip> (@"Sounds\bensound-background");
-
-		//
-
 	}
-		
-
 
 	public GameObject loadRoom(){
 		currentYear++;

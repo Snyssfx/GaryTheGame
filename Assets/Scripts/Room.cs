@@ -6,10 +6,7 @@ using UnityEngine.UI;
 public class Products{
 	public GameObject Obj;
 	public int Price;
-	public int MyPrice {
-		get { return Price; }
-		set { Price = value; }
-	}
+
 	public Products(GameObject obj, int price){
 		Obj = obj;
 		Price = price;

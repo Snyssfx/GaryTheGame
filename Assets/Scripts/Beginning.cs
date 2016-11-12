@@ -16,12 +16,10 @@ public class Beginning : MonoBehaviour {
 
 	void Start () {
 		backgroundMusic = GameController.Instance.backgroundMusic;
-		StartGame ();
-		StartCoroutine (StartGame ());
+		setupAndStartGame ();
 	}
 
 	private void createName(){
-		
 		//sort by name
 		garyLetters = GameObject.FindGameObjectsWithTag ("garyLetters");
 		for (int i = 0; i < garyLetters.Length - 1; i++) {
@@ -83,7 +81,7 @@ public class Beginning : MonoBehaviour {
 		}
 	}
 
-	public IEnumerator StartGame(){
+	private void setupAndStartGame(){
 		createName ();
 		StartCoroutine (TutorialTextShow ());
 
@@ -104,25 +102,30 @@ public class Beginning : MonoBehaviour {
 			stepsSound [i] = Resources.Load<AudioClip> (@"Sounds\Steps" + (i + 1));
 		}
 
+		StartCoroutine (StartGame (road, animGary));
+	}
+
+	private bool isExitFromBeginning(){
+		if ((Gary.transform.position - Room.posDoor - (new Vector3 (Room.startPos, Room.yPos))).x < 0.0001f) {
+			Object.Destroy (Gary);
+			foreach (var letter in garyLetters)
+				Object.Destroy (letter);
+			isShowTutorial = false;
+			StartCoroutine (GameController.Instance.LoadRoom9 ());
+			return true;
+		}
+		return false;
+	}
+
+	private IEnumerator StartGame(AudioSource road, Animator animGary){
+		
 		float speed = 1f;
 
 		float zDist = 20f;
 		float yDist = Room.yPos + Room.posGary.y;
 		Vector3 pointB = Gary.transform.position;
-		while (true) {
 
-			//exit from loop here
-			if ((Gary.transform.position - Room.posDoor - (new Vector3 (Room.startPos, Room.yPos))).x < 0.0001f) {
-				Object.Destroy (Gary);
-				foreach (var letter in garyLetters)
-					Object.Destroy (letter);
-				isShowTutorial = false;
-				StartCoroutine(road.FadeOut ());
-				StartCoroutine (GameController.Instance.LoadRoom9 ());
-				yield break;
-			}
-
-			//else
+		while (!isExitFromBeginning()) {
 			showLetters();
 			if (Input.GetMouseButton(0)) {
 				var pos = Input.mousePosition;
@@ -149,6 +152,8 @@ public class Beginning : MonoBehaviour {
 			}
 			yield return new WaitForEndOfFrame();
 		}
+		StartCoroutine(road.FadeOut ());
+		yield return null;
 	}
 			
 }
