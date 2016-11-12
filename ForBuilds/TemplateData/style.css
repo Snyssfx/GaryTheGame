@@ -1,0 +1,40 @@
+
+/****************************************
+  ==== RESETS
+****************************************/
+
+
+html,body,div,canvas { margin: 0; padding: 0; }
+
+::-moz-selection { color: #000; text-shadow: none; }
+
+::selection {  color: #000; text-shadow: none; }
+
+.clear:after { visibility: hidden; display: block; font-size: 0; content: " "; clear: both; height: 0; }
+
+.clear { display: inline-table; clear: both; }
+
+/* Hides from IE-mac \*/ * 
+html .clear {} 
+.clear { display: block; } /* End hide from IE-mac */
+
+
+/****************************************
+  ==== LAYOUT
+****************************************/
+
+
+html, body {background-color: black; width: 100%; height: 100%; font-family: Helvetica, Verdana, Arial, sans-serif; }
+
+body {background-color: black;}
+p.header, p.footer { display: none; }
+
+
+.template-wrap { position: absolute; /*top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%);*/ }
+
+.template-wrap canvas {position: absolute; top: -30px; left: -30px; right: 0; bottom: 0; background-color: gray}
+
+
+body.template { }
+.template .template-wrap { }
+.template .template-wrap canvas { }
