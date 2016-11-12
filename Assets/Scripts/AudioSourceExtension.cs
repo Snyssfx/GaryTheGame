@@ -10,7 +10,6 @@ public static class AudioSourceExtension{
 			if (volume < 0)
 				volume = 0;
 			float step = 0.01f;
-			//asource.volume = 0;
 			if (asource.volume > volume)
 				asource.volume = 0;
 			if (!asource.isPlaying)

@@ -3,25 +3,18 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-//using System.Linq;
 
 public class GameController : MonoBehaviour {
-	public AudioSource steps;
-	private AudioClip[] stepsSound;
-	public AudioSource backgroundMusic;
 
 	public int currentYear = 8;
 
 	public Button finalButton;
 	public Text finalText;
 
-	private bool isShowTutorial; //for IEnumerator TutorialTextShow
-	private bool flipX = false; //flip Gary or not?
-	GameObject Gary;
+	public AudioSource backgroundMusic;
+	public AudioSource steps;
 	private AudioSource bellSound, doorSound;
-	//private float waitTime = 0.5f;
 	private float waitTime = 1.5f;
-	private GameObject[] garyName;
 
 	//Singleton realization
 	private static GameController instance;
@@ -35,17 +28,12 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	// Use this for initialization
-	void Start () {
-		backgroundMusic = GameObject.Find ("BackgroundMusic").GetComponent<AudioSource> ();
-		backgroundMusic.loop = true;
-		backgroundMusic.clip = Resources.Load<AudioClip> (@"Sounds\bensound-background");
-
+	public void Start(){
 		Instance.finalButton = GameObject.Find ("finalButton").GetComponent<Button>();//need for Room20
 		Instance.finalButton.gameObject.SetActive (false);
 		Instance.finalText = GameObject.Find ("finalText").GetComponent<Text> ();
 		Instance.finalText.text = "";
-				
+
 		GameObject.FindGameObjectWithTag ("exit button").GetComponentInChildren<Text> ().text = "";
 		GameObject.FindGameObjectWithTag ("main text").GetComponent<Text>().text = "";
 		var buttons = GameObject.FindGameObjectsWithTag ("button");
@@ -53,52 +41,15 @@ public class GameController : MonoBehaviour {
 			button.GetComponentInChildren<Text> ().text = "";
 		}
 
-		StartCoroutine (StartGame ());
-		//StartCoroutine (LoadRoom9 ());
+		backgroundMusic = GameObject.Find ("BackgroundMusic").GetComponent<AudioSource> ();
+		backgroundMusic.loop = true;
+		backgroundMusic.clip = Resources.Load<AudioClip> (@"Sounds\bensound-background");
+
+		//
 
 	}
+		
 
-	private void createName(){
-		garyName = GameObject.FindGameObjectsWithTag ("gary");
-		for (int i = 0; i < garyName.Length - 1; i++) {
-			for (int j = 0; j < garyName.Length - i - 1; j++) {
-				if (string.Compare( garyName[j].name, garyName[j + 1].name) > 0) {
-					GameObject temp = garyName [j];
-					garyName [j] = garyName [j + 1];
-					garyName [j + 1] = temp;
-				}
-			}
-		}
-
-		for (int i = 0; i < 4; i++) {
-			garyName [i].transform.position = new Vector3(garyName [i].transform.position.x, Room.yPos + Room.posGary.y - 1.5f);
-			var text = garyName [i].GetComponent<Text> ();
-			switch (i) {
-			case 0:
-				text.text = "Г";
-				break;
-			case 1:
-				text.text = "а";
-				break;
-			case 2:
-				text.text = "р";
-				break;
-			case 3:
-				text.text = "и";
-				break;
-			}
-			garyName [i].SetActive (false);
-		}
-	}
-
-	private void showLetters(){
-		for (int i = 0; i < 4; i++) {
-			if (Gary.transform.position.x - garyName [i].transform.position.x < 0)
-				garyName [i].SetActive (true);
-			else
-				garyName [i].SetActive (false);
-		}
-	}
 
 	public GameObject loadRoom(){
 		currentYear++;
@@ -106,91 +57,6 @@ public class GameController : MonoBehaviour {
 		room.transform.parent = gameObject.transform;
 		room.transform.position = new Vector3 (Room.startPos + (currentYear - 9) * Room.xPos, Room.yPos);
 		return room;
-	}
-
-	public IEnumerator TutorialTextShow(){
-		isShowTutorial = true;
-		var tutText = GameObject.Find ("TutorialText");
-		bool show = false;
-		while (true) {
-			if (!isShowTutorial) {
-				Object.Destroy (tutText);
-				yield break;
-			}
-			if (show)
-				tutText.GetComponent<Text> ().text = "ЛЕВАЯ КНОПКА\r\nМЫШИ!";
-			else
-				tutText.GetComponent<Text> ().text = "";
-			show = !show;
-			yield return new WaitForSeconds (0.8f);
-		}
-	}
-
-	public IEnumerator StartGame(){
-		Instance.createName ();
-		StartCoroutine (TutorialTextShow ());
-
-		Gary = new GameObject ("Gary"); 
-		Gary.transform.position = new Vector3 (7.4f, Room.yPos + Room.posGary.y);
-		Gary.AddComponent<SpriteRenderer> ();
-		Animator animGary = Gary.AddComponent<Animator> ();
-		animGary.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController> ("Gary_9");
-
-		var road = GameObject.Find ("SoundEffect 2").GetComponent<AudioSource>();
-		road.clip = Resources.Load<AudioClip>(@"Sounds\RoadNoise");
-		road.loop = true;
-		StartCoroutine(road.FadeIn (1f));
-
-		steps = GameObject.Find("SoundEffect 1").GetComponent<AudioSource>();
-		stepsSound = new AudioClip[4];
-		for (int i = 0; i < 4; i++) {
-			stepsSound [i] = Resources.Load<AudioClip> (@"Sounds\Steps" + (i + 1));
-		}
-
-		float speed = 1f;
-
-		float zDist = 20f;
-		float yDist = Room.yPos + Room.posGary.y;
-		Vector3 pointB = Gary.transform.position;
-		while (true) {
-			
-			//exit from loop here
-			if ((Gary.transform.position - Room.posDoor - (new Vector3 (Room.startPos, Room.yPos))).x < 0.0001f) {
-				Object.Destroy (Gary);
-				foreach (var letter in garyName)
-					Object.Destroy (letter);
-				isShowTutorial = false;
-				StartCoroutine(road.FadeOut ());
-				StartCoroutine (Instance.LoadRoom9 ());
-				yield break;
-			}
-			//else
-			showLetters();
-			if (Input.GetMouseButton(0)) {
-				var pos = Input.mousePosition;
-				pos.z = zDist;
-				pointB = Camera.main.ScreenToWorldPoint (pos);
-				pointB.y = yDist;
-				if ((Gary.transform.position - pointB).x > 0)
-					flipX = false;
-				else
-					flipX = true;
-
-				Gary.GetComponent<SpriteRenderer> ().flipX = flipX;
-				animGary.SetBool ("isMove", true);
-			}
-			if (Mathf.Abs ((Gary.transform.position - pointB).x) < 0.0001f)
-				animGary.SetBool ("isMove", false);
-			else {
-				Gary.transform.position = Vector3.MoveTowards (Gary.transform.position, pointB, Time.deltaTime * speed);
-				if (!steps.isPlaying) {
-					int rnd = Random.Range (0, 4);
-					steps.clip = stepsSound [rnd];
-					steps.Play ();
-				}
-			}
-			yield return new WaitForEndOfFrame();
-		}
 	}
 
 	private void playBellAndDoor(){
@@ -202,12 +68,16 @@ public class GameController : MonoBehaviour {
 		bellSound = GameObject.Find("SoundEffect 3").GetComponent<AudioSource> ();
 		bellSound.clip = Resources.Load<AudioClip> (@"Sounds\Bell");
 		bellSound.Play();
+
 		if (steps == null) {
 			steps = GameObject.Find ("SoundEffect 1").GetComponent<AudioSource> ();
 			steps.clip = Resources.Load<AudioClip> (@"Sounds\Steps");
 		}
 		steps.Play ();
 	}
+
+	// once i want to ruin game rules, i have to optimize game in different ways
+	// simple code below :(
 
 	public IEnumerator LoadRoom9(){
 		if (GameObject.Find ("TutorialText") != null)
@@ -228,6 +98,7 @@ public class GameController : MonoBehaviour {
 
 		yield return new WaitForSeconds (waitTime);
 		script.Show (true);
+
 		GameObject room9 = GameObject.Find ("room9");
 		var script9 = room9.GetComponent<Room> ();
 		foreach (var obj in script9.objects) {
